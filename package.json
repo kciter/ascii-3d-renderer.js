@@ -1,0 +1,13 @@
+{
+  "name": "ascii-3d-renderer.js",
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "Sunhyoup Lee <kciter@naver.com>",
+  "scripts": {
+    "build": ""
+  },
+  "repository": {
+    "url": "https://github.com/kciter/ascii-3d-renderer.js.git",
+    "type": "git"
+  }
+}
