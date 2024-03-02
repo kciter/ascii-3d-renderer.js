@@ -1,4 +1,4 @@
-class Matrix22 {
+export class Matrix22 {
   m00: number;
   m01: number;
   m10: number;
