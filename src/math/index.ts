@@ -5,3 +5,5 @@ export * from "./vector4";
 export * from "./matrix22";
 export * from "./matrix33";
 export * from "./matrix44";
+
+export * from "./polygon";
