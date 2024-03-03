@@ -11,30 +11,27 @@ export class Matrix22 {
     this.m11 = m11;
   }
 
+  // prettier-ignore
   add(matrix: Matrix22) {
     return new Matrix22(
-      this.m00 + matrix.m00,
-      this.m01 + matrix.m01,
-      this.m10 + matrix.m10,
-      this.m11 + matrix.m11
+      this.m00 + matrix.m00, this.m01 + matrix.m01,
+      this.m10 + matrix.m10, this.m11 + matrix.m11
     );
   }
 
+  // prettier-ignore
   subtract(matrix: Matrix22) {
     return new Matrix22(
-      this.m00 - matrix.m00,
-      this.m01 - matrix.m01,
-      this.m10 - matrix.m10,
-      this.m11 - matrix.m11
+      this.m00 - matrix.m00, this.m01 - matrix.m01,
+      this.m10 - matrix.m10, this.m11 - matrix.m11
     );
   }
 
+  // prettier-ignore
   multiply(scalar: number) {
     return new Matrix22(
-      this.m00 * scalar,
-      this.m01 * scalar,
-      this.m10 * scalar,
-      this.m11 * scalar
+      this.m00 * scalar, this.m01 * scalar,
+      this.m10 * scalar, this.m11 * scalar
     );
   }
 }

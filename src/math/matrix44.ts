@@ -52,66 +52,43 @@ export class Matrix44 {
     this.m33 = m33;
   }
 
+  // prettier-ignore
   add(matrix: Matrix44) {
     return new Matrix44(
-      this.m00 + matrix.m00,
-      this.m01 + matrix.m01,
-      this.m02 + matrix.m02,
-      this.m03 + matrix.m03,
-      this.m10 + matrix.m10,
-      this.m11 + matrix.m11,
-      this.m12 + matrix.m12,
-      this.m13 + matrix.m13,
-      this.m20 + matrix.m20,
-      this.m21 + matrix.m21,
-      this.m22 + matrix.m22,
-      this.m23 + matrix.m23,
-      this.m30 + matrix.m30,
-      this.m31 + matrix.m31,
-      this.m32 + matrix.m32,
-      this.m33 + matrix.m33
+      this.m00 + matrix.m00, this.m01 + matrix.m01, this.m02 + matrix.m02, this.m03 + matrix.m03,
+      this.m10 + matrix.m10, this.m11 + matrix.m11, this.m12 + matrix.m12, this.m13 + matrix.m13,
+      this.m20 + matrix.m20, this.m21 + matrix.m21, this.m22 + matrix.m22, this.m23 + matrix.m23,
+      this.m30 + matrix.m30, this.m31 + matrix.m31, this.m32 + matrix.m32, this.m33 + matrix.m33
     );
   }
 
+  // prettier-ignore
   subtract(matrix: Matrix44) {
     return new Matrix44(
-      this.m00 - matrix.m00,
-      this.m01 - matrix.m01,
-      this.m02 - matrix.m02,
-      this.m03 - matrix.m03,
-      this.m10 - matrix.m10,
-      this.m11 - matrix.m11,
-      this.m12 - matrix.m12,
-      this.m13 - matrix.m13,
-      this.m20 - matrix.m20,
-      this.m21 - matrix.m21,
-      this.m22 - matrix.m22,
-      this.m23 - matrix.m23,
-      this.m30 - matrix.m30,
-      this.m31 - matrix.m31,
-      this.m32 - matrix.m32,
-      this.m33 - matrix.m33
+      this.m00 - matrix.m00, this.m01 - matrix.m01, this.m02 - matrix.m02, this.m03 - matrix.m03,
+      this.m10 - matrix.m10, this.m11 - matrix.m11, this.m12 - matrix.m12, this.m13 - matrix.m13,
+      this.m20 - matrix.m20, this.m21 - matrix.m21, this.m22 - matrix.m22, this.m23 - matrix.m23,
+      this.m30 - matrix.m30, this.m31 - matrix.m31, this.m32 - matrix.m32, this.m33 - matrix.m33
     );
   }
 
+  // prettier-ignore
   multiply(scalar: number) {
     return new Matrix44(
-      this.m00 * scalar,
-      this.m01 * scalar,
-      this.m02 * scalar,
-      this.m03 * scalar,
-      this.m10 * scalar,
-      this.m11 * scalar,
-      this.m12 * scalar,
-      this.m13 * scalar,
-      this.m20 * scalar,
-      this.m21 * scalar,
-      this.m22 * scalar,
-      this.m23 * scalar,
-      this.m30 * scalar,
-      this.m31 * scalar,
-      this.m32 * scalar,
-      this.m33 * scalar
+      this.m00 * scalar, this.m01 * scalar, this.m02 * scalar, this.m03 * scalar,
+      this.m10 * scalar, this.m11 * scalar, this.m12 * scalar, this.m13 * scalar,
+      this.m20 * scalar, this.m21 * scalar, this.m22 * scalar, this.m23 * scalar,
+      this.m30 * scalar, this.m31 * scalar, this.m32 * scalar, this.m33 * scalar
+    );
+  }
+
+  // prettier-ignore
+  identity() {
+    return new Matrix44(
+      1, 0, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 1, 0,
+      0, 0, 0, 1
     );
   }
 }
