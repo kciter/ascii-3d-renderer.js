@@ -83,6 +83,8 @@ export class ASCII3DRenderer {
     this.drawFrameBuffer();
   }
 
+  private vertexProcess() {}
+
   private drawPolygon() {}
 
   private drawLine(v1: Vector2, v2: Vector2) {
