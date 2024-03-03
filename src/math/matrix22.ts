@@ -34,7 +34,7 @@ export class Matrix22 {
     );
   }
 
-  multiply(scalar: number) {
+  scale(scalar: number) {
     return new Matrix22(
       this.m00 * scalar, this.m01 * scalar,
       this.m10 * scalar, this.m11 * scalar

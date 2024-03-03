@@ -44,13 +44,70 @@ export class Matrix44 {
     );
   }
 
-  multiply(scalar: number) {
+  multiply(matrix: Matrix44) {
+    return new Matrix44(
+      this.m00 * matrix.m00 + this.m01 * matrix.m10 + this.m02 * matrix.m20 + this.m03 * matrix.m30,
+      this.m00 * matrix.m01 + this.m01 * matrix.m11 + this.m02 * matrix.m21 + this.m03 * matrix.m31,
+      this.m00 * matrix.m02 + this.m01 * matrix.m12 + this.m02 * matrix.m22 + this.m03 * matrix.m32,
+      this.m00 * matrix.m03 + this.m01 * matrix.m13 + this.m02 * matrix.m23 + this.m03 * matrix.m33,
+      this.m10 * matrix.m00 + this.m11 * matrix.m10 + this.m12 * matrix.m20 + this.m13 * matrix.m30,
+      this.m10 * matrix.m01 + this.m11 * matrix.m11 + this.m12 * matrix.m21 + this.m13 * matrix.m31,
+      this.m10 * matrix.m02 + this.m11 * matrix.m12 + this.m12 * matrix.m22 + this.m13 * matrix.m32,
+      this.m10 * matrix.m03 + this.m11 * matrix.m13 + this.m12 * matrix.m23 + this.m13 * matrix.m33,
+      this.m20 * matrix.m00 + this.m21 * matrix.m10 + this.m22 * matrix.m20 + this.m23 * matrix.m30,
+      this.m20 * matrix.m01 + this.m21 * matrix.m11 + this.m22 * matrix.m21 + this.m23 * matrix.m31,
+      this.m20 * matrix.m02 + this.m21 * matrix.m12 + this.m22 * matrix.m22 + this.m23 * matrix.m32,
+      this.m20 * matrix.m03 + this.m21 * matrix.m13 + this.m22 * matrix.m23 + this.m23 * matrix.m33,
+      this.m30 * matrix.m00 + this.m31 * matrix.m10 + this.m32 * matrix.m20 + this.m33 * matrix.m30,
+      this.m30 * matrix.m01 + this.m31 * matrix.m11 + this.m32 * matrix.m21 + this.m33 * matrix.m31,
+      this.m30 * matrix.m02 + this.m31 * matrix.m12 + this.m32 * matrix.m22 + this.m33 * matrix.m33,
+      this.m30 * matrix.m03 + this.m31 * matrix.m13 + this.m32 * matrix.m23 + this.m33 * matrix.m33
+    );
+  }
+
+  scale(scalar: number) {
     return new Matrix44(
       this.m00 * scalar, this.m01 * scalar, this.m02 * scalar, this.m03 * scalar,
       this.m10 * scalar, this.m11 * scalar, this.m12 * scalar, this.m13 * scalar,
       this.m20 * scalar, this.m21 * scalar, this.m22 * scalar, this.m23 * scalar,
       this.m30 * scalar, this.m31 * scalar, this.m32 * scalar, this.m33 * scalar
     );
+  }
+
+  rotateX(angle: number) {
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    const matrix = new Matrix44(
+      1, 0, 0, 0,
+      0, cos, -sin, 0,
+      0, sin, cos, 0,
+      0, 0, 0, 1
+    );
+    return this.multiply(matrix);
+  }
+
+  rotateY(angle: number) {
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    const matrix = new Matrix44(
+      cos, 0, sin, 0,
+      0, 1, 0, 0,
+      -sin, 0, cos, 0,
+      0, 0, 0, 1
+    );
+    return this.multiply(matrix);
+  }
+
+  rotateZ(angle: number) {
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    const matrix = new Matrix44(
+      cos, -sin, 0, 0,
+      sin, cos, 0, 0,
+      0, 0, 1, 0,
+      0, 0, 0, 1
+    );
+    return this.multiply(matrix);
   }
 
   setIdentity() {

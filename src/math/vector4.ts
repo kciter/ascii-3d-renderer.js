@@ -1,3 +1,5 @@
+import { Matrix44 } from "./matrix44";
+
 export class Vector4 {
   x: number;
   y: number;
@@ -30,6 +32,22 @@ export class Vector4 {
     this.y *= s;
     this.z *= s;
     this.w *= s;
+  }
+
+  translate(matrix44: Matrix44) {
+    const x = this.x;
+    const y = this.y;
+    const z = this.z;
+    const w = this.w;
+
+    this.x =
+      x * matrix44.m00 + y * matrix44.m01 + z * matrix44.m02 + w * matrix44.m03;
+    this.y =
+      x * matrix44.m10 + y * matrix44.m11 + z * matrix44.m12 + w * matrix44.m13;
+    this.z =
+      x * matrix44.m20 + y * matrix44.m21 + z * matrix44.m22 + w * matrix44.m23;
+    this.w =
+      x * matrix44.m30 + y * matrix44.m31 + z * matrix44.m32 + w * matrix44.m33;
   }
 
   copy() {
