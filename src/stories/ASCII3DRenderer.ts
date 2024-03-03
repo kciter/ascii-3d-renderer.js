@@ -5,7 +5,7 @@ export interface ASCII3DRendererProps {}
 export const createRenderer = ({}: ASCII3DRendererProps) => {
   const container = document.createElement("div");
 
-  const renderer = new ASCII3DRenderer(container);
+  const renderer = new ASCII3DRenderer(container, 300, 300);
   renderer.loadFromString(mesh);
   renderer.run();
 

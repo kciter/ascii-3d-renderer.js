@@ -18,4 +18,17 @@ export class Vector2 {
   multiply(scalar: number) {
     return new Vector2(this.x * scalar, this.y * scalar);
   }
+
+  distance() {
+    return Math.sqrt(this.x * this.x + this.y * this.y);
+  }
+
+  normalize() {
+    const distance = this.distance();
+    return new Vector2(this.x /= distance, this.y /= distance)
+  }
+
+  scale(scalar: number) {
+    return new Vector2(this.x *= scalar, this.y *= scalar)
+  }
 }
