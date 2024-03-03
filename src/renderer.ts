@@ -5,8 +5,13 @@ export class ASCII3DRenderer {
     // ...
   }
 
-  async load(file: File) {
-    const polygons = await Loader.load(file);
+  async loadFromFile(file: File) {
+    const polygons = await Loader.loadFromFile(file);
+    console.log(polygons);
+  }
+
+  async loadFromString(string: string) {
+    const polygons = await Loader.loadFromString(string);
     console.log(polygons);
   }
 }

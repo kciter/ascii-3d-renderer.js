@@ -1,7 +1,7 @@
 import { Polygon, Vector3 } from "./math";
 
 export class Loader {
-  static load(file: File): Promise<Polygon[]> {
+  static loadFromFile(file: File): Promise<Polygon[]> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -14,6 +14,10 @@ export class Loader {
       };
       reader.readAsText(file);
     });
+  }
+
+  static loadFromString(string: string): Polygon[] {
+    return this.parseOBJ(string);
   }
 
   private static parseOBJ(data: string): Polygon[] {
