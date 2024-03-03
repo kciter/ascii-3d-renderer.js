@@ -27,6 +27,21 @@ export class Vector3 {
     this.z *= s;
   }
 
+  rotateX(angle: number) {
+    this.y = this.y * Math.cos(angle) - this.x * Math.sin(angle);
+    this.z = -Math.sin(angle) * this.y + Math.cos(angle) * this.z;
+  }
+
+  rotateY(angle: number) {
+    this.x = this.x * Math.cos(angle) + this.z * -Math.sin(angle);
+    this.z = Math.sin(angle) * this.x + Math.cos(angle) * this.z;
+  }
+
+  rotateZ(angle: number) {
+    this.x = this.x * Math.cos(angle) - this.y * Math.sin(angle);
+    this.y = this.x * -Math.sin(angle) + this.y * Math.cos(angle);
+  }
+
   copy() {
     return new Vector3(this.x, this.y, this.z);
   }
