@@ -52,4 +52,11 @@ export class Matrix44 {
       this.m30 * scalar, this.m31 * scalar, this.m32 * scalar, this.m33 * scalar
     );
   }
+
+  setIdentity() {
+    this.m00 = 1; this.m01 = 0; this.m02 = 0; this.m03 = 0;
+    this.m10 = 0; this.m11 = 1; this.m12 = 0; this.m13 = 0;
+    this.m20 = 0; this.m21 = 0; this.m22 = 1; this.m23 = 0;
+    this.m30 = 0; this.m31 = 0; this.m32 = 0; this.m33 = 1;
+  }
 }

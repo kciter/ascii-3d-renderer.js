@@ -45,4 +45,10 @@ export class Matrix33 {
       this.m20 * scalar, this.m21 * scalar, this.m22 * scalar
     );
   }
+
+  setIdentity() {
+    this.m00 = 1; this.m01 = 0; this.m02 = 0;
+    this.m10 = 0; this.m11 = 1; this.m12 = 0;
+    this.m20 = 0; this.m21 = 0; this.m22 = 1;
+  }
 }

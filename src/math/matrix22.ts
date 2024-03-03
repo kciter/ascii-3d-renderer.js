@@ -40,4 +40,9 @@ export class Matrix22 {
       this.m10 * scalar, this.m11 * scalar
     );
   }
+
+  setIdentity() {
+    this.m00 = 1; this.m01 = 0;
+    this.m10 = 0; this.m11 = 1;
+  }
 }
