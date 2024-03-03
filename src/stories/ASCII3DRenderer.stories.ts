@@ -1,6 +1,7 @@
 import type { StoryObj, Meta } from "@storybook/html";
 import type { ASCII3DRendererProps } from "./ASCII3DRenderer";
 import { createRenderer } from "./ASCII3DRenderer";
+import "./renderer.css";
 
 const meta = {
   title: "Example/ASCII3DRenderer",
