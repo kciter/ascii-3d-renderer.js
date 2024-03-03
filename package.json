@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "license": "MIT",
   "author": "Sunhyoup Lee <kciter@naver.com>",
+  "repository": {
+    "url": "https://github.com/kciter/ascii-3d-renderer.js.git",
+    "type": "git"
+  },
   "type": "module",
   "files": ["dist"],
   "main": "./dist/index.umd.cjs",
@@ -14,10 +18,10 @@
     }
   },
   "scripts": {
-    "build": ""
+    "build": "tsc --p ./tsconfig-build.json && vite build"
   },
-  "repository": {
-    "url": "https://github.com/kciter/ascii-3d-renderer.js.git",
-    "type": "git"
-  }
+  "devDependencies": {
+    "tsc": "^2.0.4",
+    "vite": "^5.1.4"
+  } 
 }
