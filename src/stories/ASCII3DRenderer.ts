@@ -6,8 +6,8 @@ export const createRenderer = ({}: ASCII3DRendererProps) => {
   const container = document.createElement("div");
 
   const renderer = new ASCII3DRenderer(container);
-
   renderer.loadFromString(mesh);
+  renderer.run();
 
   container.className = "ascii3d-renderer";
 
