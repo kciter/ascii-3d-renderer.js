@@ -11,15 +11,28 @@ export class Vector4 {
     this.w = w;
   }
 
-  add(v: Vector4): Vector4 {
-    return new Vector4(this.x + v.x, this.y + v.y, this.z + v.z, this.w + v.w);
+  add(v: Vector4) {
+    this.x += v.x;
+    this.y += v.y;
+    this.z += v.z;
+    this.w += v.w;
   }
 
-  subtract(v: Vector4): Vector4 {
-    return new Vector4(this.x - v.x, this.y - v.y, this.z - v.z, this.w - v.w);
+  subtract(v: Vector4) {
+    this.x -= v.x;
+    this.y -= v.y;
+    this.z -= v.z;
+    this.w -= v.w;
   }
 
-  multiply(s: number): Vector4 {
-    return new Vector4(this.x * s, this.y * s, this.z * s, this.w * s);
+  multiply(s: number) {
+    this.x *= s;
+    this.y *= s;
+    this.z *= s;
+    this.w *= s;
+  }
+
+  copy() {
+    return new Vector4(this.x, this.y, this.z, this.w);
   }
 }

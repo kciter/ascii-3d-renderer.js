@@ -8,15 +8,18 @@ export class Vector2 {
   }
 
   add(vector: Vector2) {
-    return new Vector2(this.x + vector.x, this.y + vector.y);
+    this.x += vector.x;
+    this.y += vector.y;
   }
 
   subtract(vector: Vector2) {
-    return new Vector2(this.x - vector.x, this.y - vector.y);
+    this.x -= vector.x;
+    this.y -= vector.y;
   }
 
   multiply(scalar: number) {
-    return new Vector2(this.x * scalar, this.y * scalar);
+    this.x *= scalar;
+    this.y *= scalar;
   }
 
   distance() {
@@ -25,10 +28,11 @@ export class Vector2 {
 
   normalize() {
     const distance = this.distance();
-    return new Vector2(this.x /= distance, this.y /= distance)
+    this.x /= distance;
+    this.y /= distance;
   }
 
-  scale(scalar: number) {
-    return new Vector2(this.x *= scalar, this.y *= scalar)
+  copy() {
+    return new Vector2(this.x, this.y);
   }
 }

@@ -9,15 +9,25 @@ export class Vector3 {
     this.z = z;
   }
 
-  add(v: Vector3): Vector3 {
-    return new Vector3(this.x + v.x, this.y + v.y, this.z + v.z);
+  add(v: Vector3) {
+    this.x += v.x;
+    this.y += v.y;
+    this.z += v.z;
   }
 
-  subtract(v: Vector3): Vector3 {
-    return new Vector3(this.x - v.x, this.y - v.y, this.z - v.z);
+  subtract(v: Vector3) {
+    this.x -= v.x;
+    this.y -= v.y;
+    this.z -= v.z;
   }
 
-  multiply(s: number): Vector3 {
-    return new Vector3(this.x * s, this.y * s, this.z * s);
+  multiply(s: number) {
+    this.x *= s;
+    this.y *= s;
+    this.z *= s;
+  }
+
+  copy() {
+    return new Vector3(this.x, this.y, this.z);
   }
 }
