@@ -1,4 +1,4 @@
-import { Matrix44 } from "./matrix44";
+import { Matrix44 } from './matrix44';
 
 export class Vector4 {
   x: number;
@@ -40,14 +40,10 @@ export class Vector4 {
     const z = this.z;
     const w = this.w;
 
-    this.x =
-      x * matrix44.m00 + y * matrix44.m01 + z * matrix44.m02 + w * matrix44.m03;
-    this.y =
-      x * matrix44.m10 + y * matrix44.m11 + z * matrix44.m12 + w * matrix44.m13;
-    this.z =
-      x * matrix44.m20 + y * matrix44.m21 + z * matrix44.m22 + w * matrix44.m23;
-    this.w =
-      x * matrix44.m30 + y * matrix44.m31 + z * matrix44.m32 + w * matrix44.m33;
+    this.x = matrix44.m00 * x + matrix44.m10 * y + matrix44.m20 * z + matrix44.m30 * w;
+    this.y = matrix44.m01 * x + matrix44.m11 * y + matrix44.m21 * z + matrix44.m31 * w;
+    this.z = matrix44.m02 * x + matrix44.m12 * y + matrix44.m22 * z + matrix44.m32 * w;
+    this.w = matrix44.m03 * x + matrix44.m13 * y + matrix44.m23 * z + matrix44.m33 * w;
   }
 
   copy() {

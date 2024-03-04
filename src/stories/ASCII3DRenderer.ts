@@ -1,15 +1,15 @@
-import { ASCII3DRenderer } from "../renderer";
+import { ASCII3DRenderer } from '../renderer';
 
 export interface ASCII3DRendererProps {}
 
 export const createRenderer = ({}: ASCII3DRendererProps) => {
-  const container = document.createElement("div");
+  const container = document.createElement('div');
 
-  const renderer = new ASCII3DRenderer(container, 300, 300);
+  const renderer = new ASCII3DRenderer(container, 120, 60);
   renderer.loadFromString(mesh);
   renderer.run();
 
-  container.className = "ascii3d-renderer";
+  container.className = 'ascii3d-renderer';
 
   return container;
 };

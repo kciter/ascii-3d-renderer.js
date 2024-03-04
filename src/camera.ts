@@ -1,4 +1,4 @@
-import { Matrix44, Vector3 } from "./math";
+import { Matrix44, Vector3 } from './math';
 
 export class Camera {
   eye: Vector3;
@@ -23,13 +23,12 @@ export class Camera {
     target.add(this.eye);
 
     const newForward = target.copy();
-    const newUp = this.up.copy();
-
     newForward.subtract(this.eye);
     newForward.normalize();
 
     const a = newForward.copy();
     a.multiply(this.up.dot(newForward));
+    const newUp = this.up.copy();
     newUp.subtract(a);
     newUp.normalize();
 
@@ -40,8 +39,24 @@ export class Camera {
     this.viewMatrix = new Matrix44(
       newRight.x, newRight.y, newRight.z, 0,
       newUp.x, newUp.y, newUp.z, 0,
-      -newForward.x, -newForward.y, -newForward.z, 0,
+      newForward.x, newForward.y, newForward.z, 0,
       this.eye.x, this.eye.y, this.eye.z, 1
     );
+
+    this.viewMatrix.invert();
+  }
+
+  calculatePerspectiveMatrix(fov: number, aspect: number, near: number, far: number) {
+    const matrix = Matrix44.identity();
+    const f = Math.tan(fov / 2);
+
+    // prettier-ignore
+    matrix.m00 = 1/ (f * aspect);
+    matrix.m11 = 1 / f;
+    matrix.m22 = -(far + near) / (far - near);
+    matrix.m23 = -1;
+    matrix.m32 = (2 * far * near) / (far - near);
+
+    return matrix;
   }
 }
