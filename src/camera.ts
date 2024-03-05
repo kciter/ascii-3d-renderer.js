@@ -1,4 +1,4 @@
-import { Matrix44, Vector3 } from './math';
+import { Matrix44, Vector3, Vector4 } from './math';
 
 export class Camera {
   eye: Vector3;
@@ -15,25 +15,19 @@ export class Camera {
     this.viewMatrix = Matrix44.identity();
   }
 
+  transform(v: Vector4) {
+    return v.transform(this.viewMatrix);
+  }
+
   calculateViewMatrix() {
-    const target = this.look.copy();
-    target.rotateX(this.rotation.x);
-    target.rotateY(this.rotation.y);
-    target.rotateZ(this.rotation.z);
-    target.add(this.eye);
+    const target = this.look.rotateX(this.rotation.x).rotateY(this.rotation.y).rotateZ(this.rotation.z).add(this.eye);
 
-    const newForward = target.copy();
-    newForward.subtract(this.eye);
-    newForward.normalize();
+    const newForward = target.subtract(this.eye).normalize();
 
-    const a = newForward.copy();
-    a.multiply(this.up.dot(newForward));
-    const newUp = this.up.copy();
-    newUp.subtract(a);
-    newUp.normalize();
+    const a = newForward.multiply(this.up.dot(newForward));
+    const newUp = this.up.subtract(a).normalize();
 
-    const newRight = newUp.copy();
-    newRight.cross(newForward);
+    const newRight = newUp.cross(newForward);
 
     // prettier-ignore
     this.viewMatrix = new Matrix44(
@@ -42,20 +36,17 @@ export class Camera {
       newForward.x, newForward.y, newForward.z, 0,
       this.eye.x, this.eye.y, this.eye.z, 1
     );
-
-    this.viewMatrix.invert();
   }
 
   calculatePerspectiveMatrix(fov: number, aspect: number, near: number, far: number) {
     const matrix = Matrix44.identity();
     const f = Math.tan(fov / 2);
 
-    // prettier-ignore
-    matrix.m00 = 1/ (f * aspect);
+    matrix.m00 = 1 / (f * aspect);
     matrix.m11 = 1 / f;
     matrix.m22 = -(far + near) / (far - near);
     matrix.m23 = -1;
-    matrix.m32 = (2 * far * near) / (far - near);
+    matrix.m32 = -(2 * far * near) / (far - near);
 
     return matrix;
   }

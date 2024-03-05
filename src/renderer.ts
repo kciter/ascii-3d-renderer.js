@@ -8,6 +8,7 @@ export class ASCII3DRenderer {
   width: number;
   height: number;
   frameBuffer: string[][];
+  depthBuffer: number[][];
   mesh: Polygon[] = [];
 
   camera: Camera;
@@ -20,6 +21,7 @@ export class ASCII3DRenderer {
     this.width = width;
     this.height = height;
     this.frameBuffer = new Array(height + 1).fill(null).map(() => new Array(width + 1).fill(' '));
+    this.depthBuffer = new Array(height + 1).fill(null).map(() => new Array(width + 1).fill(255));
 
     this.camera = new Camera();
     this.world = new World();
@@ -28,13 +30,11 @@ export class ASCII3DRenderer {
   }
 
   async loadFromFile(file: File) {
-    const polygons = await Loader.loadFromFile(file);
-    this.mesh = polygons;
+    this.mesh = await Loader.loadFromFile(file);
   }
 
   async loadFromString(string: string) {
-    const polygons = await Loader.loadFromString(string);
-    this.mesh = polygons;
+    this.mesh = await Loader.loadFromString(string);
   }
 
   run() {
@@ -51,7 +51,7 @@ export class ASCII3DRenderer {
       if (delta > interval) {
         then = now - (delta % interval);
         this.render();
-        this.angle += 0.01;
+        this.angle += 0.005;
         if (this.angle >= 2 * 3.14) this.angle -= 2 * 3.14;
       }
 
@@ -63,16 +63,16 @@ export class ASCII3DRenderer {
 
   private render() {
     this.clearFrameBuffer();
-    this.vertexProcess();
+    this.process();
     this.drawFrameBuffer();
   }
 
-  private vertexProcess() {
+  private process() {
     this.camera.calculateViewMatrix();
     const projMat = this.camera.calculatePerspectiveMatrix(70, this.width / 2 / this.height, 0.1, 1000);
 
     this.world.matrix.setIdentity();
-    this.world.translate(new Vector3(0, 0.1, -3));
+    this.world.translate(new Vector3(0, 0, -6));
 
     this.world.rotateX(this.angle);
     this.world.rotateY(this.angle);
@@ -84,57 +84,53 @@ export class ASCII3DRenderer {
       let v3 = new Vector4(polygon.vertices[2].x, polygon.vertices[2].y, polygon.vertices[2].z, 1);
 
       // World transform
-      v1.translate(this.world.matrix);
-      v2.translate(this.world.matrix);
-      v3.translate(this.world.matrix);
+      v1 = this.world.transform(v1);
+      v2 = this.world.transform(v2);
+      v3 = this.world.transform(v3);
 
-      // View transform
-      v1.translate(this.camera.viewMatrix);
-      v2.translate(this.camera.viewMatrix);
-      v3.translate(this.camera.viewMatrix);
+      const line1 = new Vector3(v1.x, v1.y, v1.z).subtract(new Vector3(v2.x, v2.y, v2.z));
+      const line2 = new Vector3(v1.x, v1.y, v1.z).subtract(new Vector3(v3.x, v3.y, v3.z));
 
-      const line1 = new Vector3(v1.x, v1.y, v1.z);
-      line1.subtract(new Vector3(v2.x, v2.y, v2.z));
+      const normal = line1.cross(line2).normalize();
+      const cameraRay = new Vector3(v1.x, v1.y, v1.z).subtract(this.camera.eye);
 
-      const line2 = new Vector3(v1.x, v1.y, v1.z);
-      line2.subtract(new Vector3(v3.x, v3.y, v3.z));
-
-      const normal = line1.copy();
-      normal.cross(line2);
-      normal.normalize();
-
-      const cameraRay = new Vector3(v1.x, v1.y, v1.z);
-      cameraRay.subtract(this.camera.eye);
-
-      if (normal.dot(cameraRay) < 0) {
+      if (normal.dot(cameraRay) >= 0) {
         return;
       }
+
+      // View transform
+      v1 = this.camera.transform(v1);
+      v2 = this.camera.transform(v2);
+      v3 = this.camera.transform(v3);
 
       // Projection transform
       v1 = this.transformVertex(v1, projMat);
       v2 = this.transformVertex(v2, projMat);
       v3 = this.transformVertex(v3, projMat);
 
-      // Draw
+      const lightDirection = new Vector3(0, 0, 1).normalize();
+      const lightLevel = Math.max(0, normal.dot(lightDirection));
+
       this.rasterize(
         new Vector4(v1.x, v1.y, v1.z, v1.w),
         new Vector4(v2.x, v2.y, v2.z, v2.w),
-        new Vector4(v3.x, v3.y, v3.z, v3.w)
+        new Vector4(v3.x, v3.y, v3.z, v3.w),
+        lightLevel
       );
     });
   }
 
   private transformVertex(vertex: Vector4, mat44: Matrix44) {
-    vertex.translate(mat44);
+    const transformed = vertex.transform(mat44);
 
-    vertex.x /= vertex.w;
-    vertex.y /= vertex.w;
-    vertex.z /= vertex.w;
+    transformed.x /= transformed.w;
+    transformed.y /= transformed.w;
+    transformed.z /= transformed.w;
 
-    return vertex;
+    return transformed;
   }
 
-  private rasterize(V1: Vector4, V2: Vector4, V3: Vector4) {
+  private rasterize(V1: Vector4, V2: Vector4, V3: Vector4, lightLevel: number) {
     const halfWidth = this.width / 2;
     const halfHeight = this.height / 2;
 
@@ -151,7 +147,16 @@ export class ASCII3DRenderer {
     for (let i = minY; i < maxY; i++) {
       for (let j = minX; j < maxX; j++) {
         if (this.isPointInTriangle(j, i, v1, v2, v3)) {
-          this.frameBuffer[i][j] = '#';
+          // this.frameBuffer[i][j] = '#';
+
+          const index = i * this.width + j;
+          if (index > this.height * this.width || index < 0) continue;
+
+          if ((V1.w + V2.w + V3.w) / 3.0 <= this.depthBuffer[i][j]) {
+            const LightAscii = '.;ox%@';
+            this.frameBuffer[i][j] = LightAscii[Math.round((LightAscii.length - 1) * lightLevel)];
+            this.depthBuffer[i][j] = (V1.w + V2.w + V3.w) / 3.0;
+          }
         }
       }
     }
@@ -186,5 +191,6 @@ export class ASCII3DRenderer {
 
   private clearFrameBuffer() {
     this.frameBuffer = new Array(this.height + 1).fill(null).map(() => new Array(this.width + 1).fill(' '));
+    this.depthBuffer = new Array(this.height + 1).fill(null).map(() => new Array(this.width + 1).fill(255));
   }
 }

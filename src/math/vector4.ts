@@ -14,39 +14,28 @@ export class Vector4 {
   }
 
   add(v: Vector4) {
-    this.x += v.x;
-    this.y += v.y;
-    this.z += v.z;
-    this.w += v.w;
+    return new Vector4(this.x + v.x, this.y + v.y, this.z + v.z, this.w + v.w);
   }
 
   subtract(v: Vector4) {
-    this.x -= v.x;
-    this.y -= v.y;
-    this.z -= v.z;
-    this.w -= v.w;
+    return new Vector4(this.x - v.x, this.y - v.y, this.z - v.z, this.w - v.w);
   }
 
   multiply(s: number) {
-    this.x *= s;
-    this.y *= s;
-    this.z *= s;
-    this.w *= s;
+    return new Vector4(this.x * s, this.y * s, this.z * s, this.w * s);
   }
 
-  translate(matrix44: Matrix44) {
+  transform(m44: Matrix44) {
     const x = this.x;
     const y = this.y;
     const z = this.z;
     const w = this.w;
 
-    this.x = matrix44.m00 * x + matrix44.m10 * y + matrix44.m20 * z + matrix44.m30 * w;
-    this.y = matrix44.m01 * x + matrix44.m11 * y + matrix44.m21 * z + matrix44.m31 * w;
-    this.z = matrix44.m02 * x + matrix44.m12 * y + matrix44.m22 * z + matrix44.m32 * w;
-    this.w = matrix44.m03 * x + matrix44.m13 * y + matrix44.m23 * z + matrix44.m33 * w;
-  }
-
-  copy() {
-    return new Vector4(this.x, this.y, this.z, this.w);
+    return new Vector4(
+      m44.m00 * x + m44.m10 * y + m44.m20 * z + m44.m30 * w,
+      m44.m01 * x + m44.m11 * y + m44.m21 * z + m44.m31 * w,
+      m44.m02 * x + m44.m12 * y + m44.m22 * z + m44.m32 * w,
+      m44.m03 * x + m44.m13 * y + m44.m23 * z + m44.m33 * w
+    );
   }
 }

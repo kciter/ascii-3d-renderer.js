@@ -7,32 +7,24 @@ export class Vector2 {
     this.y = y;
   }
 
-  add(vector: Vector2) {
-    this.x += vector.x;
-    this.y += vector.y;
+  add(v: Vector2) {
+    return new Vector2(this.x + v.x, this.y + v.y);
   }
 
-  subtract(vector: Vector2) {
-    this.x -= vector.x;
-    this.y -= vector.y;
+  subtract(v: Vector2) {
+    return new Vector2(this.x - v.x, this.y - v.y);
   }
 
-  multiply(scalar: number) {
-    this.x *= scalar;
-    this.y *= scalar;
+  multiply(s: number) {
+    return new Vector2(this.x * s, this.y * s);
   }
 
-  distance() {
+  length() {
     return Math.sqrt(this.x * this.x + this.y * this.y);
   }
 
   normalize() {
-    const distance = this.distance();
-    this.x /= distance;
-    this.y /= distance;
-  }
-
-  copy() {
-    return new Vector2(this.x, this.y);
+    const length = this.length();
+    return new Vector2(this.x / length, this.y / length);
   }
 }
