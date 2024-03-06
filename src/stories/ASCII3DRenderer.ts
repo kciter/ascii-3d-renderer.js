@@ -1,13 +1,17 @@
 import { ASCII3DRenderer } from '../renderer';
-import { cube, donut, teapot } from './raw';
+import { cube, donut, rocket, ship, teapot } from './raw';
 
-export interface ASCII3DRendererProps {}
+export interface ASCII3DRendererProps {
+  width: number;
+  height: number;
+}
 
-export const createRenderer = ({}: ASCII3DRendererProps) => {
+export const createRenderer = ({ width, height }: ASCII3DRendererProps) => {
   const container = document.createElement('div');
 
-  // const renderer = new ASCII3DRenderer(container, 120, 60);
-  const renderer = new ASCII3DRenderer(container, 100, 30);
+  console.log(width, height);
+
+  const renderer = new ASCII3DRenderer(container, 150, 50);
   renderer.loadFromString(teapot);
   renderer.run();
 

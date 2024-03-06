@@ -72,7 +72,7 @@ export class ASCII3DRenderer {
     const projMat = this.camera.calculatePerspectiveMatrix(70, this.width / 2 / this.height, 0.1, 1000);
 
     this.world.matrix.setIdentity();
-    this.world.translate(new Vector3(0, 0, -6));
+    this.world.translate(new Vector3(0, 0, -5));
 
     this.world.rotateX(this.angle);
     this.world.rotateY(this.angle);
@@ -153,7 +153,9 @@ export class ASCII3DRenderer {
           if (index > this.height * this.width || index < 0) continue;
 
           if ((V1.w + V2.w + V3.w) / 3.0 <= this.depthBuffer[i][j]) {
-            const LightAscii = '.;ox%@';
+            const LightAscii = '·┼╬░▒▓█';
+            // const LightAscii = `.-':_,^=;><+!rc*/z?sLTv)J7(|Fi{C}fI31tlu[neoZ5Yxjya]2ESwqkP6h9d4VpOGbUAKXHm8RD#$Bg0MNWQ%&@`;
+            // const LightAscii = '.;ox%@';
             this.frameBuffer[i][j] = LightAscii[Math.round((LightAscii.length - 1) * lightLevel)];
             this.depthBuffer[i][j] = (V1.w + V2.w + V3.w) / 3.0;
           }
