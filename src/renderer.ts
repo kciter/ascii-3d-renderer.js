@@ -51,7 +51,7 @@ export class ASCII3DRenderer {
       if (delta > interval) {
         then = now - (delta % interval);
         this.render();
-        this.angle += 0.005;
+        this.angle += 0.007;
         if (this.angle >= 2 * 3.14) this.angle -= 2 * 3.14;
       }
 
@@ -68,11 +68,12 @@ export class ASCII3DRenderer {
   }
 
   private process() {
+    this.camera.eye = new Vector3(0, 0, 0);
     this.camera.calculateViewMatrix();
     const projMat = this.camera.calculatePerspectiveMatrix(70, this.width / 2 / this.height, 0.1, 1000);
 
     this.world.matrix.setIdentity();
-    this.world.translate(new Vector3(0, 0, -5));
+    this.world.translate(new Vector3(0, 0, -7));
 
     this.world.rotateX(this.angle);
     this.world.rotateY(this.angle);
@@ -111,6 +112,7 @@ export class ASCII3DRenderer {
       const lightDirection = new Vector3(0, 0, 1).normalize();
       const lightLevel = Math.max(0, normal.dot(lightDirection));
 
+      // Rasterize
       this.rasterize(
         new Vector4(v1.x, v1.y, v1.z, v1.w),
         new Vector4(v2.x, v2.y, v2.z, v2.w),
