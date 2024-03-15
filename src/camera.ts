@@ -10,7 +10,7 @@ export class Camera {
   constructor() {
     this.eye = new Vector3(0, 0, 0);
     this.look = new Vector3(0, 0, 1);
-    this.up = new Vector3(0, 1, 0);
+    this.up = new Vector3(0, -1, 0);
     this.rotation = new Vector3(0, 0, 0);
     this.viewMatrix = Matrix44.identity();
   }
@@ -40,13 +40,13 @@ export class Camera {
 
   calculatePerspectiveMatrix(fov: number, aspect: number, near: number, far: number) {
     const matrix = Matrix44.identity();
-    const f = Math.tan(fov / 2);
+    const f = Math.tan((fov / 2) * (3.141592 / 180));
 
-    matrix.m00 = 1 / (f * aspect);
+    matrix.m00 = 1 / f / aspect;
     matrix.m11 = 1 / f;
-    matrix.m22 = -(far + near) / (far - near);
+    matrix.m22 = (-2 * near) / (far - near) - 1;
     matrix.m23 = -1;
-    matrix.m32 = -(2 * far * near) / (far - near);
+    matrix.m32 = -(far * -near) / (far - near);
 
     return matrix;
   }

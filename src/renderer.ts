@@ -16,6 +16,9 @@ export class ASCII3DRenderer {
 
   angle: number;
 
+  // private Shade = '.;ox%@';
+  private Shade = '·┼╬░▒▓█';
+
   constructor(_el: HTMLElement, width: number, height: number) {
     this.el = _el;
     this.width = width;
@@ -68,41 +71,40 @@ export class ASCII3DRenderer {
   }
 
   private process() {
-    this.camera.eye = new Vector3(0, 0, 0);
+    this.camera.eye = new Vector3(0, 0, -5);
     this.camera.calculateViewMatrix();
     const projMat = this.camera.calculatePerspectiveMatrix(70, this.width / 2 / this.height, 0.1, 1000);
-
-    this.world.matrix.setIdentity();
-    this.world.translate(new Vector3(0, 0, -7));
 
     this.world.rotateX(this.angle);
     this.world.rotateY(this.angle);
     this.world.rotateZ(this.angle);
+    this.world.translate(new Vector3(0, 0, 0));
 
     this.mesh.forEach((polygon) => {
+      // 4x4 행렬 연산을 위해 Vector4로 변환
       let v1 = new Vector4(polygon.vertices[0].x, polygon.vertices[0].y, polygon.vertices[0].z, 1);
       let v2 = new Vector4(polygon.vertices[1].x, polygon.vertices[1].y, polygon.vertices[1].z, 1);
       let v3 = new Vector4(polygon.vertices[2].x, polygon.vertices[2].y, polygon.vertices[2].z, 1);
 
-      // World transform
+      // 월드 변환
       v1 = this.world.transform(v1);
       v2 = this.world.transform(v2);
       v3 = this.world.transform(v3);
+
+      // 뷰 변환
+      v1 = this.camera.transform(v1);
+      v2 = this.camera.transform(v2);
+      v3 = this.camera.transform(v3);
 
       const line1 = new Vector3(v1.x, v1.y, v1.z).subtract(new Vector3(v2.x, v2.y, v2.z));
       const line2 = new Vector3(v1.x, v1.y, v1.z).subtract(new Vector3(v3.x, v3.y, v3.z));
 
       const normal = line1.cross(line2).normalize();
-      const cameraRay = new Vector3(v1.x, v1.y, v1.z).subtract(this.camera.eye);
+      const cameraRay = new Vector3(v1.x, v1.y, v1.z).add(this.camera.eye);
 
       if (normal.dot(cameraRay) >= 0) {
         return;
       }
-
-      // View transform
-      v1 = this.camera.transform(v1);
-      v2 = this.camera.transform(v2);
-      v3 = this.camera.transform(v3);
 
       // Projection transform
       v1 = this.transformVertex(v1, projMat);
@@ -155,10 +157,7 @@ export class ASCII3DRenderer {
           if (index > this.height * this.width || index < 0) continue;
 
           if ((V1.w + V2.w + V3.w) / 3.0 <= this.depthBuffer[i][j]) {
-            const LightAscii = '·┼╬░▒▓█';
-            // const LightAscii = `.-':_,^=;><+!rc*/z?sLTv)J7(|Fi{C}fI31tlu[neoZ5Yxjya]2ESwqkP6h9d4VpOGbUAKXHm8RD#$Bg0MNWQ%&@`;
-            // const LightAscii = '.;ox%@';
-            this.frameBuffer[i][j] = LightAscii[Math.round((LightAscii.length - 1) * lightLevel)];
+            this.frameBuffer[i][j] = this.Shade[Math.round((this.Shade.length - 1) * lightLevel)];
             this.depthBuffer[i][j] = (V1.w + V2.w + V3.w) / 3.0;
           }
         }

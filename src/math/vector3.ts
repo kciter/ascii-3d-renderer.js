@@ -9,6 +9,10 @@ export class Vector3 {
     this.z = z;
   }
 
+  static zero() {
+    return new Vector3(0, 0, 0);
+  }
+
   add(v: Vector3) {
     return new Vector3(this.x + v.x, this.y + v.y, this.z + v.z);
   }

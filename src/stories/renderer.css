@@ -2,3 +2,9 @@
   font-family: monospace;
   line-height: 1;
 }
+
+.ascii3d-renderer div {
+  font-size: 12px;
+  /* transform-origin: 0 0;
+  transform: scale(0.5, 0.3); */
+}

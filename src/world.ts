@@ -1,30 +1,37 @@
 import { Matrix44, Vector3, Vector4 } from './math';
 
-// prettier-ignore
 export class World {
-  matrix: Matrix44;
+  position: Vector3;
+  rotate: Vector3;
 
   constructor() {
-    this.matrix = Matrix44.identity();
+    this.position = new Vector3(0, 0, 0);
+    this.rotate = new Vector3(0, 0, 0);
   }
 
   transform(v: Vector4) {
-    return v.transform(this.matrix);
+    const matrix = Matrix44.identity()
+      .multiply(Matrix44.rotateX(this.rotate.x))
+      .multiply(Matrix44.rotateY(this.rotate.y))
+      .multiply(Matrix44.rotateZ(this.rotate.z))
+      .multiply(Matrix44.translate(this.position));
+
+    return v.transform(matrix);
   }
 
   translate(v: Vector3) {
-    this.matrix = this.matrix.translate(v);
+    this.position = v;
   }
 
   rotateX(angle: number) {
-    this.matrix.rotate(new Vector3(1, 0, 0), angle);
+    this.rotate.x = angle;
   }
 
   rotateY(angle: number) {
-    this.matrix.rotate(new Vector3(0, 1, 0), angle);
+    this.rotate.y = angle;
   }
 
   rotateZ(angle: number) {
-    this.matrix.rotate(new Vector3(0, 0, 1), angle);
+    this.rotate.z = angle;
   }
 }
