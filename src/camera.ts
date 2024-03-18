@@ -10,7 +10,7 @@ export class Camera {
   constructor() {
     this.eye = new Vector3(0, 0, 0);
     this.look = new Vector3(0, 0, 1);
-    this.up = new Vector3(0, -1, 0);
+    this.up = new Vector3(0, 1, 0);
     this.rotation = new Vector3(0, 0, 0);
     this.viewMatrix = Matrix44.identity();
   }
