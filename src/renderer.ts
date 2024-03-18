@@ -75,10 +75,10 @@ export class ASCII3DRenderer {
     this.camera.calculateViewMatrix();
     const projMat = this.camera.calculatePerspectiveMatrix(70, this.width / 2 / this.height, 0.1, 1000);
 
-    this.world.rotateX(this.angle);
-    this.world.rotateY(this.angle);
-    this.world.rotateZ(this.angle);
-    this.world.translate(new Vector3(0, 0, 0));
+    this.world.setRotateX(this.angle);
+    this.world.setRotateY(this.angle);
+    this.world.setRotateZ(this.angle);
+    this.world.setTranslate(new Vector3(0, 0, 0));
 
     this.mesh.forEach((polygon) => {
       // 4x4 행렬 연산을 위해 Vector4로 변환
@@ -96,6 +96,7 @@ export class ASCII3DRenderer {
       v2 = this.camera.transform(v2);
       v3 = this.camera.transform(v3);
 
+      // Lighting
       const line1 = new Vector3(v1.x, v1.y, v1.z).subtract(new Vector3(v2.x, v2.y, v2.z));
       const line2 = new Vector3(v1.x, v1.y, v1.z).subtract(new Vector3(v3.x, v3.y, v3.z));
 
@@ -184,12 +185,8 @@ export class ASCII3DRenderer {
   }
 
   private drawFrameBuffer() {
-    this.el.innerHTML = '';
-    this.frameBuffer.forEach((row) => {
-      const div = document.createElement('div');
-      div.innerHTML = row.join('').replace(/\ /g, '&nbsp;');
-      this.el.appendChild(div);
-    });
+    const ascii = this.frameBuffer.map((row) => row.join('').replace(/\ /g, '&nbsp;')).join('<br />');
+    this.el.innerHTML = ascii;
   }
 
   private clearFrameBuffer() {
