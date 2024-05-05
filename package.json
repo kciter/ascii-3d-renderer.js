@@ -2,9 +2,12 @@
   "name": "ascii-3d-renderer.js",
   "version": "1.0.0",
   "license": "MIT",
-  "author": "Sunhyoup Lee <kciter@naver.com>",
+  "author": {
+    "name": "Sunhyoup Lee",
+    "email": "kciter@naver.com"
+  },
   "repository": {
-    "url": "https://github.com/kciter/ascii-3d-renderer.js.git",
+    "url": "git+https://github.com/kciter/ascii-3d-renderer.js.git",
     "type": "git"
   },
   "type": "module",
@@ -23,7 +26,8 @@
   "scripts": {
     "build": "vite build",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "chromatic": "npx chromatic --project-token=chpt_0350050c121f9b4"
   },
   "devDependencies": {
     "@storybook/addon-essentials": "^7.6.17",
@@ -40,5 +44,9 @@
     "typescript": "^5.3.3",
     "vite": "^5.1.4",
     "vite-plugin-dts": "^3.7.3"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/kciter/ascii-3d-renderer.js/issues"
+  },
+  "homepage": "https://github.com/kciter/ascii-3d-renderer.js#readme"
 }
