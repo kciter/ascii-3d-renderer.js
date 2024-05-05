@@ -1,4 +1,22 @@
-export const teapot = `
+import { Object } from '../object';
+
+export class Teapot extends Object {
+  angle = 0;
+
+  constructor() {
+    super();
+    this.loadFromString(mesh);
+  }
+
+  override update(): void {
+    this.setRotateX(-this.angle * 2);
+    this.setRotateY(-this.angle * 2);
+    this.setRotateZ(-this.angle);
+    this.angle += 0.007;
+  }
+}
+
+const mesh = `
 v -3.000000 1.800000 0.000000
 v -2.991600 1.800000 -0.081000
 v -2.991600 1.800000 0.081000

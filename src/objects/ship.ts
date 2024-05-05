@@ -1,4 +1,22 @@
-export const ship = `
+import { Object } from '../object';
+
+export class Ship extends Object {
+  angle = 0;
+
+  constructor() {
+    super();
+    this.loadFromString(mesh);
+  }
+
+  override update(): void {
+    this.setRotateX(-this.angle * 2);
+    this.setRotateY(-this.angle * 2);
+    this.setRotateZ(-this.angle);
+    this.angle += 0.007;
+  }
+}
+
+const mesh = `
 v 1.000000 -1.000000 -1.000000
 v 1.000000 1.000000 -1.000000
 v 1.000000 -1.000000 1.000000

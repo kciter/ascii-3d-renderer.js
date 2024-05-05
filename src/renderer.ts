@@ -1,5 +1,5 @@
 import { Camera } from './camera';
-import { Matrix44, Vector2, Vector3, Vector4 } from './math';
+import { Vector2, Vector3, Vector4 } from './math';
 import { Object } from './object';
 import { Projection } from './projection';
 
@@ -24,10 +24,16 @@ export class ASCII3DRenderer {
     this.frameBuffer = new Array(height + 1).fill(null).map(() => new Array(width + 1).fill(' '));
     this.depthBuffer = new Array(height + 1).fill(null).map(() => new Array(width + 1).fill(255));
     this.projection = new Projection(70, width / 2 / height, 0.1, 100);
+
+    this.camera.eye = new Vector3(0, 0, -2);
   }
 
   placeObject(object: Object) {
     this.objects.push(object);
+  }
+
+  clearObjects() {
+    this.objects = [];
   }
 
   run() {
@@ -66,8 +72,6 @@ export class ASCII3DRenderer {
   }
 
   private process() {
-    this.camera.eye = new Vector3(0, 0, -3);
-
     for (const object of this.objects) {
       for (const polygon of object.mesh) {
         // 4x4 행렬 연산을 위해 Vector4로 변환
@@ -85,47 +89,66 @@ export class ASCII3DRenderer {
         v2 = this.camera.transform(v2);
         v3 = this.camera.transform(v3);
 
+        // 광원 계산
+        const brightness = this.calculateLight(v1, v2, v3);
+
         // 투영 변환
         v1 = this.projection.transform(v1);
         v2 = this.projection.transform(v2);
         v3 = this.projection.transform(v3);
 
         // 래스터화
-        this.rasterize(v1, v2, v3);
+        this.rasterize(v1, v2, v3, brightness);
       }
     }
   }
 
-  private rasterize(v1: Vector4, v2: Vector4, v3: Vector4) {
+  private rasterize(v1: Vector4, v2: Vector4, v3: Vector4, brightness: number) {
     // 점들을 화면 좌표로 변환
     const p1 = new Vector2(((v1.x + 1) * this.width) / 2, ((1 - v1.y) * this.height) / 2);
     const p2 = new Vector2(((v2.x + 1) * this.width) / 2, ((1 - v2.y) * this.height) / 2);
     const p3 = new Vector2(((v3.x + 1) * this.width) / 2, ((1 - v3.y) * this.height) / 2);
 
-    // 삼각형 그리기
-    this.drawTriangle(p1, p2, p3);
+    // 삼각형의 경계 박스 계산
+    const minX = Math.floor(Math.max(0, Math.min(p1.x, p2.x, p3.x)));
+    const minY = Math.floor(Math.max(0, Math.min(p1.y, p2.y, p3.y)));
+    const maxX = Math.floor(Math.min(this.width, Math.max(p1.x, p2.x, p3.x)));
+    const maxY = Math.floor(Math.min(this.height, Math.max(p1.y, p2.y, p3.y)));
+
+    // 박스 내부 순회
+    for (let y = minY; y <= maxY; y++) {
+      for (let x = minX; x <= maxX; x++) {
+        // 화면 밖이라면 무시
+        if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
+          continue;
+        }
+
+        const p = new Vector2(x, y);
+
+        // 삼각형 내부에 있다면
+        if (this.isPointInTriangle(p, p1, p2, p3)) {
+          // 더 낮은 깊이라면 덮어쓴다
+          if ((v1.w + v2.w + v3.w) / 3.0 <= this.depthBuffer[y][x]) {
+            const shade = this.Shade[Math.round(brightness * (this.Shade.length - 1))];
+            this.frameBuffer[y][x] = shade;
+            this.depthBuffer[y][x] = (v1.w + v2.w + v3.w) / 3.0;
+          }
+        }
+      }
+    }
   }
 
-  private drawTriangle(p1: Vector2, p2: Vector2, p3: Vector2) {
-    // this.drawLine(p1, p2);
-    // this.drawLine(p2, p3);
-    // this.drawLine(p3, p1);
-
-    this.fillTriangle(p1, p2, p3);
-  }
-
-  private fillTriangle(p1: Vector2, p2: Vector2, p3: Vector2) {
-    // 삼각형의 경계 상자 계산
-    const minX = Math.min(p1.x, p2.x, p3.x);
-    const maxX = Math.max(p1.x, p2.x, p3.x);
-    const minY = Math.min(p1.y, p2.y, p3.y);
-    const maxY = Math.max(p1.y, p2.y, p3.y);
-
+  private calculateLight(v1: Vector4, v2: Vector4, v3: Vector4): number {
     // 광원의 방향 벡터
-    const lightDirection = new Vector3(0, 0, 1).normalize(); // 예시로 (0, 0, 1)을 사용함
+    // 카메라가 바라보는 방향 (0, 0, 1)을 사용함
+    const lightDirection = new Vector3(0, 0, 1).normalize();
 
     // 삼각형의 표면 법선 벡터 계산
-    const normal = this.calculateSurfaceNormal(p1, p2, p3);
+    const normal = this.calculateSurfaceNormal(
+      new Vector3(v1.x, v1.y, v1.z),
+      new Vector3(v2.x, v2.y, v2.z),
+      new Vector3(v3.x, v3.y, v3.z)
+    );
 
     // 광원과 표면 법선 벡터 간의 각도 계산
     const cosAngle = normal.dot(lightDirection);
@@ -133,28 +156,16 @@ export class ASCII3DRenderer {
     // 광원 각도에 따라 픽셀의 밝기 결정
     const brightness = Math.max(0, cosAngle);
 
-    // 밝기를 색상에 반영하여 픽셀의 색 결정
-    const shade = this.Shade[Math.round(brightness * this.Shade.length)];
-
-    for (let x = minX; x < maxX; x++) {
-      for (let y = minY; y < maxY; y++) {
-        const p = new Vector2(x, y);
-
-        // 삼각형 내부에 있다면
-        if (this.isPointInTriangle(p, p1, p2, p3)) {
-          this.setPixel(x, y, shade);
-        }
-      }
-    }
+    return brightness;
   }
 
-  private calculateSurfaceNormal(p1: Vector2, p2: Vector2, p3: Vector2): Vector3 {
+  private calculateSurfaceNormal(v1: Vector3, v2: Vector3, v3: Vector3): Vector3 {
     // 두 변을 정의
-    const edge1 = p1.subtract(p2);
-    const edge2 = p1.subtract(p3);
+    const edge1 = v3.subtract(v2);
+    const edge2 = v1.subtract(v3);
 
     // 외적을 계산하여 표면 법선 벡터 반환
-    return new Vector3(edge1.x, edge1.y, 1).cross(new Vector3(edge2.x, edge2.y, 1)).normalize();
+    return edge1.cross(edge2).normalize();
   }
 
   private isPointInTriangle(p: Vector2, p1: Vector2, p2: Vector2, p3: Vector2): boolean {
@@ -180,13 +191,9 @@ export class ASCII3DRenderer {
       const current = normalized.multiply(i);
       const pixel = p1.add(current);
 
-      this.setPixel(pixel.x, pixel.y, '#');
-    }
-  }
-
-  private setPixel(x: number, y: number, shade: string) {
-    if (x >= 0 && x < this.width && y >= 0 && y < this.height) {
-      this.frameBuffer[Math.floor(y)][Math.floor(x)] = shade;
+      if (pixel.x >= 0 && pixel.x < this.width && pixel.y >= 0 && pixel.y < this.height) {
+        this.frameBuffer[Math.round(pixel.y)][Math.round(pixel.x)] = '#';
+      }
     }
   }
 

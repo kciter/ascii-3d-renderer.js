@@ -1,4 +1,3 @@
-import { Vector3 } from '../math';
 import { Object } from '../object';
 
 export class Cube extends Object {
@@ -13,12 +12,11 @@ export class Cube extends Object {
     this.setRotateX(-this.angle * 2);
     this.setRotateY(-this.angle * 2);
     this.setRotateZ(-this.angle);
-    this.setTranslate(new Vector3(1, 1, -5));
     this.angle += 0.007;
   }
 }
 
-export const mesh = `
+const mesh = `
 # Blender v2.90.1 OBJ File: ''
 # www.blender.org
 o Cube

@@ -1,4 +1,22 @@
-export const donut = `
+import { Object } from '../object';
+
+export class Donut extends Object {
+  angle = 0;
+
+  constructor() {
+    super();
+    this.loadFromString(mesh);
+  }
+
+  override update(): void {
+    this.setRotateX(-this.angle * 2);
+    this.setRotateY(-this.angle * 2);
+    this.setRotateZ(-this.angle);
+    this.angle += 0.007;
+  }
+}
+
+const mesh = `
 # Blender v2.90.1 OBJ File: ''
 # www.blender.org
 o Torus

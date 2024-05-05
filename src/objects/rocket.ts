@@ -1,4 +1,22 @@
-export const rocket = `
+import { Object } from '../object';
+
+export class Rocket extends Object {
+  angle = 0;
+
+  constructor() {
+    super();
+    this.loadFromString(mesh);
+  }
+
+  override update(): void {
+    this.setRotateX(-this.angle * 2);
+    this.setRotateY(-this.angle * 2);
+    this.setRotateZ(-this.angle);
+    this.angle += 0.007;
+  }
+}
+
+const mesh = `
 # Blender v3.5.1 OBJ File: 'rocket.blend'
 # www.blender.org
 o rocketbody_立方体.001
