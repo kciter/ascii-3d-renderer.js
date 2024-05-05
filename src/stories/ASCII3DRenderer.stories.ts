@@ -6,7 +6,6 @@ import { Vector3 } from '../math';
 
 const meta = {
   title: 'Example/ASCII3DRenderer',
-  tags: ['autodocs'],
 } satisfies Meta;
 
 export default meta;
