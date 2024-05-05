@@ -1,7 +1,7 @@
 import { Camera } from './camera';
-import { Loader } from './loader';
-import { Matrix44, Polygon, Vector2, Vector3, Vector4 } from './math';
-import { World } from './world';
+import { Matrix44, Vector2, Vector3, Vector4 } from './math';
+import { Object } from './object';
+import { Projection } from './projection';
 
 export class ASCII3DRenderer {
   el: HTMLElement;
@@ -9,12 +9,10 @@ export class ASCII3DRenderer {
   height: number;
   frameBuffer: string[][];
   depthBuffer: number[][];
-  mesh: Polygon[] = [];
 
-  camera: Camera;
-  world: World;
-
-  angle: number;
+  objects: Object[] = [];
+  camera: Camera = new Camera();
+  projection: Projection;
 
   // private Shade = '.;ox%@';
   private Shade = '·┼╬░▒▓█';
@@ -25,19 +23,11 @@ export class ASCII3DRenderer {
     this.height = height;
     this.frameBuffer = new Array(height + 1).fill(null).map(() => new Array(width + 1).fill(' '));
     this.depthBuffer = new Array(height + 1).fill(null).map(() => new Array(width + 1).fill(255));
-
-    this.camera = new Camera();
-    this.world = new World();
-
-    this.angle = 0;
+    this.projection = new Projection(70, width / 2 / height, 0.1, 100);
   }
 
-  async loadFromFile(file: File) {
-    this.mesh = await Loader.loadFromFile(file);
-  }
-
-  async loadFromString(string: string) {
-    this.mesh = await Loader.loadFromString(string);
+  placeObject(object: Object) {
+    this.objects.push(object);
   }
 
   run() {
@@ -54,8 +44,7 @@ export class ASCII3DRenderer {
       if (delta > interval) {
         then = now - (delta % interval);
         this.render();
-        this.angle += 0.007;
-        if (this.angle >= 2 * 3.14) this.angle -= 2 * 3.14;
+        this.update();
       }
 
       requestAnimationFrame(renderFrame);
@@ -70,118 +59,135 @@ export class ASCII3DRenderer {
     this.drawFrameBuffer();
   }
 
-  private process() {
-    this.camera.eye = new Vector3(0, 0, -5);
-    this.camera.calculateViewMatrix();
-    const projMat = this.camera.calculatePerspectiveMatrix(70, this.width / 2 / this.height, 0.1, 1000);
-
-    this.world.setRotateX(this.angle);
-    this.world.setRotateY(this.angle);
-    this.world.setRotateZ(this.angle);
-    this.world.setTranslate(new Vector3(0, 0, 0));
-
-    this.mesh.forEach((polygon) => {
-      // 4x4 행렬 연산을 위해 Vector4로 변환
-      let v1 = new Vector4(polygon.vertices[0].x, polygon.vertices[0].y, polygon.vertices[0].z, 1);
-      let v2 = new Vector4(polygon.vertices[1].x, polygon.vertices[1].y, polygon.vertices[1].z, 1);
-      let v3 = new Vector4(polygon.vertices[2].x, polygon.vertices[2].y, polygon.vertices[2].z, 1);
-
-      // 월드 변환
-      v1 = this.world.transform(v1);
-      v2 = this.world.transform(v2);
-      v3 = this.world.transform(v3);
-
-      // 뷰 변환
-      v1 = this.camera.transform(v1);
-      v2 = this.camera.transform(v2);
-      v3 = this.camera.transform(v3);
-
-      // Lighting
-      const line1 = new Vector3(v1.x, v1.y, v1.z).subtract(new Vector3(v2.x, v2.y, v2.z));
-      const line2 = new Vector3(v1.x, v1.y, v1.z).subtract(new Vector3(v3.x, v3.y, v3.z));
-
-      const normal = line1.cross(line2).normalize();
-      const cameraRay = new Vector3(v1.x, v1.y, v1.z).add(this.camera.eye);
-
-      if (normal.dot(cameraRay) >= 0) {
-        return;
-      }
-
-      // Projection transform
-      v1 = this.transformVertex(v1, projMat);
-      v2 = this.transformVertex(v2, projMat);
-      v3 = this.transformVertex(v3, projMat);
-
-      const lightDirection = new Vector3(0, 0, 1).normalize();
-      const lightLevel = Math.max(0, normal.dot(lightDirection));
-
-      // Rasterize
-      this.rasterize(
-        new Vector4(v1.x, v1.y, v1.z, v1.w),
-        new Vector4(v2.x, v2.y, v2.z, v2.w),
-        new Vector4(v3.x, v3.y, v3.z, v3.w),
-        lightLevel
-      );
+  private update() {
+    this.objects.forEach((object) => {
+      object.update();
     });
   }
 
-  private transformVertex(vertex: Vector4, mat44: Matrix44) {
-    const transformed = vertex.transform(mat44);
+  private process() {
+    this.camera.eye = new Vector3(0, 0, -3);
 
-    transformed.x /= transformed.w;
-    transformed.y /= transformed.w;
-    transformed.z /= transformed.w;
+    for (const object of this.objects) {
+      for (const polygon of object.mesh) {
+        // 4x4 행렬 연산을 위해 Vector4로 변환
+        let v1 = new Vector4(polygon.vertices[0].x, polygon.vertices[0].y, polygon.vertices[0].z, 1);
+        let v2 = new Vector4(polygon.vertices[1].x, polygon.vertices[1].y, polygon.vertices[1].z, 1);
+        let v3 = new Vector4(polygon.vertices[2].x, polygon.vertices[2].y, polygon.vertices[2].z, 1);
 
-    return transformed;
+        // 월드 변환
+        v1 = object.transform(v1);
+        v2 = object.transform(v2);
+        v3 = object.transform(v3);
+
+        // 뷰 변환
+        v1 = this.camera.transform(v1);
+        v2 = this.camera.transform(v2);
+        v3 = this.camera.transform(v3);
+
+        // 투영 변환
+        v1 = this.projection.transform(v1);
+        v2 = this.projection.transform(v2);
+        v3 = this.projection.transform(v3);
+
+        // 래스터화
+        this.rasterize(v1, v2, v3);
+      }
+    }
   }
 
-  private rasterize(V1: Vector4, V2: Vector4, V3: Vector4, lightLevel: number) {
-    const halfWidth = this.width / 2;
-    const halfHeight = this.height / 2;
+  private rasterize(v1: Vector4, v2: Vector4, v3: Vector4) {
+    // 점들을 화면 좌표로 변환
+    const p1 = new Vector2(((v1.x + 1) * this.width) / 2, ((1 - v1.y) * this.height) / 2);
+    const p2 = new Vector2(((v2.x + 1) * this.width) / 2, ((1 - v2.y) * this.height) / 2);
+    const p3 = new Vector2(((v3.x + 1) * this.width) / 2, ((1 - v3.y) * this.height) / 2);
 
-    const v1 = new Vector2(V1.x * halfWidth + halfWidth, -V1.y * halfHeight + halfHeight);
-    const v2 = new Vector2(V2.x * halfWidth + halfWidth, -V2.y * halfHeight + halfHeight);
-    const v3 = new Vector2(V3.x * halfWidth + halfWidth, -V3.y * halfHeight + halfHeight);
+    // 삼각형 그리기
+    this.drawTriangle(p1, p2, p3);
+  }
 
-    const minX = Math.floor(Math.max(0, Math.min(v1.x, Math.min(v2.x, v3.x))));
-    const minY = Math.floor(Math.max(0, Math.min(v1.y, Math.min(v2.y, v3.y))));
+  private drawTriangle(p1: Vector2, p2: Vector2, p3: Vector2) {
+    // this.drawLine(p1, p2);
+    // this.drawLine(p2, p3);
+    // this.drawLine(p3, p1);
 
-    const maxX = Math.floor(Math.min(this.width, Math.max(v1.x, Math.max(v2.x, v3.x)) + 1));
-    const maxY = Math.floor(Math.min(this.height, Math.max(v1.y, Math.max(v2.y, v3.y)) + 1));
+    this.fillTriangle(p1, p2, p3);
+  }
 
-    for (let i = minY; i < maxY; i++) {
-      for (let j = minX; j < maxX; j++) {
-        if (this.isPointInTriangle(j, i, v1, v2, v3)) {
-          // this.frameBuffer[i][j] = '#';
+  private fillTriangle(p1: Vector2, p2: Vector2, p3: Vector2) {
+    // 삼각형의 경계 상자 계산
+    const minX = Math.min(p1.x, p2.x, p3.x);
+    const maxX = Math.max(p1.x, p2.x, p3.x);
+    const minY = Math.min(p1.y, p2.y, p3.y);
+    const maxY = Math.max(p1.y, p2.y, p3.y);
 
-          const index = i * this.width + j;
-          if (index > this.height * this.width || index < 0) continue;
+    // 광원의 방향 벡터
+    const lightDirection = new Vector3(0, 0, 1).normalize(); // 예시로 (0, 0, 1)을 사용함
 
-          if ((V1.w + V2.w + V3.w) / 3.0 <= this.depthBuffer[i][j]) {
-            this.frameBuffer[i][j] = this.Shade[Math.round((this.Shade.length - 1) * lightLevel)];
-            this.depthBuffer[i][j] = (V1.w + V2.w + V3.w) / 3.0;
-          }
+    // 삼각형의 표면 법선 벡터 계산
+    const normal = this.calculateSurfaceNormal(p1, p2, p3);
+
+    // 광원과 표면 법선 벡터 간의 각도 계산
+    const cosAngle = normal.dot(lightDirection);
+
+    // 광원 각도에 따라 픽셀의 밝기 결정
+    const brightness = Math.max(0, cosAngle);
+
+    // 밝기를 색상에 반영하여 픽셀의 색 결정
+    const shade = this.Shade[Math.round(brightness * this.Shade.length)];
+
+    for (let x = minX; x < maxX; x++) {
+      for (let y = minY; y < maxY; y++) {
+        const p = new Vector2(x, y);
+
+        // 삼각형 내부에 있다면
+        if (this.isPointInTriangle(p, p1, p2, p3)) {
+          this.setPixel(x, y, shade);
         }
       }
     }
   }
 
-  private isPointInTriangle(x: number, y: number, v1: Vector2, v2: Vector2, v3: Vector2): boolean {
-    const wv1 =
-      ((v2.y - v3.y) * (x - v3.x) + (v3.x - v2.x) * (y - v3.y)) /
-      ((v2.y - v3.y) * (v1.x - v3.x) + (v3.x - v2.x) * (v1.y - v3.y));
+  private calculateSurfaceNormal(p1: Vector2, p2: Vector2, p3: Vector2): Vector3 {
+    // 두 변을 정의
+    const edge1 = p1.subtract(p2);
+    const edge2 = p1.subtract(p3);
 
-    const wv2 =
-      ((v3.y - v1.y) * (x - v3.x) + (v1.x - v3.x) * (y - v3.y)) /
-      ((v2.y - v3.y) * (v1.x - v3.x) + (v3.x - v2.x) * (v1.y - v3.y));
+    // 외적을 계산하여 표면 법선 벡터 반환
+    return new Vector3(edge1.x, edge1.y, 1).cross(new Vector3(edge2.x, edge2.y, 1)).normalize();
+  }
 
-    const wv3 = 1 - wv1 - wv2;
+  private isPointInTriangle(p: Vector2, p1: Vector2, p2: Vector2, p3: Vector2): boolean {
+    // 세 개의 부분 삼각형의 부호 계산
+    const b1 = this.sign(p, p1, p2) < 0;
+    const b2 = this.sign(p, p2, p3) < 0;
+    const b3 = this.sign(p, p3, p1) < 0;
 
-    const one = wv1 < -0.001;
-    const two = wv2 < -0.001;
-    const three = wv3 < -0.001;
+    // 모든 부분 삼각형의 부호가 같으면 삼각형 내부에 있는 것으로 간주
+    return b1 === b2 && b2 === b3;
+  }
 
-    return one == two && two == three;
+  private sign(p1: Vector2, p2: Vector2, p3: Vector2) {
+    return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
+  }
+
+  private drawLine(p1: Vector2, p2: Vector2) {
+    const result = p2.subtract(p1);
+    const len = result.length();
+    const normalized = result.normalize();
+
+    for (let i = 0; i < len; i++) {
+      const current = normalized.multiply(i);
+      const pixel = p1.add(current);
+
+      this.setPixel(pixel.x, pixel.y, '#');
+    }
+  }
+
+  private setPixel(x: number, y: number, shade: string) {
+    if (x >= 0 && x < this.width && y >= 0 && y < this.height) {
+      this.frameBuffer[Math.floor(y)][Math.floor(x)] = shade;
+    }
   }
 
   private drawFrameBuffer() {
