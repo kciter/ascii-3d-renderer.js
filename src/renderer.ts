@@ -14,6 +14,8 @@ export class ASCII3DRenderer {
   camera: Camera = new Camera();
   projection: Projection;
 
+  isStop: boolean = false;
+
   // private Shade = '.;ox%@';
   private Shade = '·┼╬░▒▓█';
 
@@ -36,6 +38,10 @@ export class ASCII3DRenderer {
     this.objects = [];
   }
 
+  stop() {
+    this.isStop = true;
+  }
+
   run() {
     const fps = 60;
     const interval = 1000 / fps;
@@ -53,7 +59,7 @@ export class ASCII3DRenderer {
         this.update();
       }
 
-      requestAnimationFrame(renderFrame);
+      if (!this.isStop) requestAnimationFrame(renderFrame);
     };
 
     requestAnimationFrame(renderFrame);

@@ -10,6 +10,14 @@ const meta = {
 
 export default meta;
 
+function onElementRemoved(element: HTMLElement, callback: Function) {
+  new MutationObserver(() => {
+    if (!document.body.contains(element)) {
+      callback();
+    }
+  }).observe(element.parentElement!!, { childList: true });
+}
+
 export const Default = () => {
   const container = document.createElement('div');
   const screen = document.createElement('div');
@@ -65,6 +73,10 @@ export const Default = () => {
 
   container.appendChild(screen);
 
+  onElementRemoved(container, () => {
+    renderer.stop();
+  });
+
   return container;
 };
 
@@ -91,6 +103,10 @@ export const Many = () => {
   container.className = 'ascii3d-renderer';
 
   container.appendChild(screen);
+
+  onElementRemoved(container, () => {
+    renderer.stop();
+  });
 
   return container;
 };
@@ -146,6 +162,10 @@ export const CameraControl = () => {
   });
 
   container.appendChild(screen);
+
+  onElementRemoved(container, () => {
+    renderer.stop();
+  });
 
   return container;
 };
