@@ -96,9 +96,9 @@ export const Many = () => {
   donut.setTranslate(new Vector3(1, 0, -1));
   renderer.placeObject(donut);
 
-  const teapot = new Teapot();
-  teapot.setTranslate(new Vector3(-2, -5, -7));
-  renderer.placeObject(teapot);
+  // const teapot = new Teapot();
+  // teapot.setTranslate(new Vector3(-2, -5, -7));
+  // renderer.placeObject(teapot);
 
   renderer.run();
 
@@ -127,9 +127,9 @@ export const CameraControl = () => {
   donut.setTranslate(new Vector3(1, 0, -1));
   renderer.placeObject(donut);
 
-  const teapot = new Teapot();
-  teapot.setTranslate(new Vector3(-2, -5, -7));
-  renderer.placeObject(teapot);
+  // const teapot = new Teapot();
+  // teapot.setTranslate(new Vector3(-2, -5, -7));
+  // renderer.placeObject(teapot);
 
   renderer.run();
 
