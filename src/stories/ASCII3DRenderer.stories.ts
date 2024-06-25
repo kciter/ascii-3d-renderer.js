@@ -11,11 +11,13 @@ const meta = {
 export default meta;
 
 function onElementRemoved(element: HTMLElement, callback: Function) {
-  new MutationObserver(() => {
+  const observer = new MutationObserver(() => {
     if (!document.body.contains(element)) {
+      console.log('stop');
       callback();
     }
-  }).observe(element.parentElement!!, { childList: true });
+  });
+  observer.observe(element, { childList: true });
 }
 
 export const Default = () => {
@@ -73,7 +75,7 @@ export const Default = () => {
 
   container.appendChild(screen);
 
-  onElementRemoved(container, () => {
+  onElementRemoved(screen, () => {
     renderer.stop();
   });
 
@@ -104,7 +106,7 @@ export const Many = () => {
 
   container.appendChild(screen);
 
-  onElementRemoved(container, () => {
+  onElementRemoved(screen, () => {
     renderer.stop();
   });
 
@@ -163,7 +165,7 @@ export const CameraControl = () => {
 
   container.appendChild(screen);
 
-  onElementRemoved(container, () => {
+  onElementRemoved(screen, () => {
     renderer.stop();
   });
 
