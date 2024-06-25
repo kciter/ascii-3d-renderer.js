@@ -6,5 +6,11 @@ This repository contains sample code written for [blog post](https://kciter.so/p
 
 You can watch the example at this link: https://6637eb83d047d2bb1b3cfe67-nhlvitxryq.chromatic.com/
 
+## Run
+```bash
+pnpm install
+pnpm run storybook
+```
+
 ## License
 MIT
